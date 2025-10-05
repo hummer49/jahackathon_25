@@ -201,6 +201,7 @@ def main():
     intro_index = 0
     intro_current_text = ""
     intro_last_update = pygame.time.get_ticks()
+    typing_sound_played = False
 
     while True:
         for event in pygame.event.get():
@@ -232,6 +233,7 @@ def main():
                         else:
                             intro_current_text = ""
                             intro_last_update = pygame.time.get_ticks()
+                            typing_sound_played = False  # Reset for new text
                 
                 # --- NEW: Briefing State Logic ---
                 elif game_state == "briefing":
@@ -363,8 +365,8 @@ def main():
             screens.draw_home_screen(display, settings, player) # Pass player for highest level
 
         elif game_state == "intro":
-            intro_current_text, intro_last_update = screens.draw_intro_screen(
-                display, settings, intro_texts, intro_index, intro_current_text, intro_last_update
+            intro_current_text, intro_last_update, typing_sound_played = screens.draw_intro_screen(
+                display, settings, intro_texts, intro_index, intro_current_text, intro_last_update, sound_manager, typing_sound_played
             )
         
         # --- NEW: Draw Briefing Screen ---

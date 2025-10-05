@@ -110,7 +110,7 @@ def draw_home_screen(display, settings, player):
     display.blit(prompt_text, prompt_rect)
     display.blit(max_level_text, max_level_rect)
 
-def draw_intro_screen(display, settings, texts, current_index, current_text, last_update_time, char_delay=50):
+def draw_intro_screen(display, settings, texts, current_index, current_text, last_update_time, sound_manager=None, typing_sound_played=False, char_delay=50):
     """Dibuja texto centrado con animación tipo máquina de escribir."""
     display.fill(settings.BLACK)
 
@@ -120,6 +120,11 @@ def draw_intro_screen(display, settings, texts, current_index, current_text, las
 
     # Escribir letra a letra
     if len(current_text) < len(full_text) and now - last_update_time > char_delay:
+        # Play typing sound only once when starting to type a new text
+        if not typing_sound_played and sound_manager and len(current_text) == 0:
+            sound_manager.play_sound('typing')
+            typing_sound_played = True
+        
         current_text += full_text[len(current_text)]
         last_update_time = now
 
@@ -134,7 +139,7 @@ def draw_intro_screen(display, settings, texts, current_index, current_text, las
         hint_rect = hint_surface.get_rect(center=(settings.width // 2, settings.height // 2 + 60))
         display.blit(hint_surface, hint_rect)
 
-    return current_text, last_update_time
+    return current_text, last_update_time, typing_sound_played
 
 def draw_briefing_screen(display, settings, level, start_button):
     display.fill(settings.BLACK)
@@ -295,6 +300,9 @@ class Screens:
     
     def draw_home_screen(self, display, settings, player):
         return draw_home_screen(display, settings, player)
+    
+    def draw_intro_screen(self, display, settings, texts, current_index, current_text, last_update_time, sound_manager=None, typing_sound_played=False, char_delay=50):
+        return draw_intro_screen(display, settings, texts, current_index, current_text, last_update_time, sound_manager, typing_sound_played, char_delay)
     
     def draw_game_screen(self, display, settings, moles, player, level, hint_button=None, show_hint_dialog=False):
         return draw_game_screen(display, settings, moles, player, level, hint_button, show_hint_dialog)
