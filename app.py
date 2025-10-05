@@ -77,17 +77,32 @@ def main():
                         else:
                             start_new_round()
                 
+                # elif game_state == "level_complete":
+                #     mouse_pos = event.pos
+                #     if continue_button.collidepoint(mouse_pos):
+                #         next_level_num = current_level.n_level + 1
+                #         current_level = Level(n_level=next_level_num, starting_lives=STARTING_LIVES)
+                #         setup_level(current_level)
+                #         start_new_round()
+                #         game_state = "playing"
+                #     elif quit_button.collidepoint(mouse_pos):
+                #         game_state = "home"
+                # ===
                 elif game_state == "level_complete":
                     mouse_pos = event.pos
                     if continue_button.collidepoint(mouse_pos):
                         next_level_num = current_level.n_level + 1
+                        
+                        # Update the last_level_played for the current session
+                        player.last_level_played = next_level_num
+
                         current_level = Level(n_level=next_level_num, starting_lives=STARTING_LIVES)
                         setup_level(current_level)
                         start_new_round()
                         game_state = "playing"
                     elif quit_button.collidepoint(mouse_pos):
                         game_state = "home"
-                
+                # ===
                 elif game_state in ["game_over", "win"]:
                     game_state = "home"
 

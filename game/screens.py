@@ -28,7 +28,8 @@ def draw_game_screen(display, settings, moles, player, level):
 def draw_level_complete_screen(display, settings, player, continue_btn, quit_btn):
     display.fill(settings.BLACK)
     
-    title_text = settings.font_large.render("Level Completed!", True, settings.WHITE)
+    title_text = settings.font_large.render(f"Level {player.last_level_played + 1} Completed!", True, settings.WHITE)
+    # sub_title_text = settings.font_large.render("Level Completed!", True, settings.WHITE)
     score_text = settings.font_small.render(f"Current Score: {player.total_score}", True, settings.WHITE)
     title_rect = title_text.get_rect(center=(settings.width / 2, settings.height / 2 - 80))
     score_rect = score_text.get_rect(center=(settings.width / 2, settings.height / 2 - 20))
@@ -49,15 +50,36 @@ def draw_level_complete_screen(display, settings, player, continue_btn, quit_btn
     quit_text_rect = quit_text.get_rect(center=quit_btn.center)
     display.blit(quit_text, quit_text_rect)
 
+# def draw_game_over_screen(display, settings, player):
+#     display.fill(settings.BLACK)
+#     title_text = settings.font_large.render("GAME OVER", True, settings.BRIGHT_RED)
+#     score_text = settings.font_small.render(f"Final Score: {player.total_score}", True, settings.WHITE)
+#     prompt_text = settings.font_small.render("Click to return to menu", True, settings.WHITE)
+#     title_rect = title_text.get_rect(center=(settings.width / 2, settings.height / 2 - 50))
+#     score_rect = score_text.get_rect(center=(settings.width / 2, settings.height / 2 + 20))
+#     prompt_rect = prompt_text.get_rect(center=(settings.width / 2, settings.height / 2 + 60))
+#     display.blit(title_text, title_rect); display.blit(score_text, score_rect); display.blit(prompt_text, prompt_rect)
+
 def draw_game_over_screen(display, settings, player):
     display.fill(settings.BLACK)
     title_text = settings.font_large.render("GAME OVER", True, settings.BRIGHT_RED)
     score_text = settings.font_small.render(f"Final Score: {player.total_score}", True, settings.WHITE)
+    
+    # Add text to show what level they were on
+    level_text = settings.font_small.render(f"You reached Level: {player.last_level_played + 1}", True, settings.WHITE)
+    
     prompt_text = settings.font_small.render("Click to return to menu", True, settings.WHITE)
-    title_rect = title_text.get_rect(center=(settings.width / 2, settings.height / 2 - 50))
-    score_rect = score_text.get_rect(center=(settings.width / 2, settings.height / 2 + 20))
-    prompt_rect = prompt_text.get_rect(center=(settings.width / 2, settings.height / 2 + 60))
-    display.blit(title_text, title_rect); display.blit(score_text, score_rect); display.blit(prompt_text, prompt_rect)
+    
+    # Positioning and blitting
+    title_rect = title_text.get_rect(center=(settings.width / 2, settings.height / 2 - 80))
+    score_rect = score_text.get_rect(center=(settings.width / 2, settings.height / 2 - 20))
+    level_rect = level_text.get_rect(center=(settings.width / 2, settings.height / 2 + 20))
+    prompt_rect = prompt_text.get_rect(center=(settings.width / 2, settings.height / 2 + 70))
+    
+    display.blit(title_text, title_rect)
+    display.blit(score_text, score_rect)
+    display.blit(level_text, level_rect)
+    display.blit(prompt_text, prompt_rect)
 
 def draw_win_screen(display, settings, player):
     display.fill(settings.BLACK)
