@@ -1,134 +1,3 @@
-# # app.py
-# import pygame
-# import sys
-# import random
-
-# # Import all the components from your game package
-# from game.settings import Settings
-# from game.player import Player
-# from game.level import Level
-# from game.mole import Mole
-# import game.screens as screens
-
-# def main():
-#     pygame.init()
-#     settings = Settings()
-#     player = Player()
-#     display = pygame.display.set_mode(size=(settings.width, settings.height))
-#     pygame.display.set_caption(settings.title)
-
-#     STARTING_LIVES = 3
-#     MAX_LEVELS = 7 # Last level is index 6
-    
-#     current_level, moles, active_mole = None, [], None
-#     round_time_limit, round_start_time = 1000, 0
-#     game_state = "home"
-
-#     button_w, button_h = 200, 70
-#     button_y = settings.height / 2 + 80
-#     continue_button = pygame.Rect(settings.width/4 - button_w/2, button_y, button_w, button_h)
-#     quit_button = pygame.Rect(settings.width*3/4 - button_w/2, button_y, button_w, button_h)
-
-#     def setup_level(level_obj):
-#         nonlocal moles
-#         moles.clear()
-#         for i in range(level_obj.holes):
-#             x = (i + 1) * (settings.width // (level_obj.holes + 1))
-#             moles.append(Mole(x, settings.height / 2, display))
-
-#     def start_new_round():
-#         nonlocal active_mole, round_start_time
-#         if active_mole: active_mole.is_active = False
-#         if moles: active_mole = random.choice(moles); active_mole.is_active = True
-#         round_start_time = pygame.time.get_ticks()
-
-#     while True:
-#         for event in pygame.event.get():
-#             if event.type == pygame.QUIT:
-#                 pygame.quit(); sys.exit()
-
-#             if event.type == pygame.MOUSEBUTTONDOWN:
-#                 if game_state == "home":
-#                     player.reset()
-#                     current_level = Level(n_level=0, starting_lives=STARTING_LIVES)
-#                     setup_level(current_level)
-#                     start_new_round()
-#                     game_state = "playing"
-                
-#                 elif game_state == "playing":
-#                     mouse_x, mouse_y = pygame.mouse.get_pos()
-#                     dist = ((mouse_x - active_mole.x)**2 + (mouse_y - active_mole.y)**2)**0.5
-
-#                     if dist <= active_mole.radius:
-#                         player.total_score += 1
-#                         current_level.increment_hits()
-                        
-#                         if current_level.is_complete():
-#                             if current_level.n_level + 1 >= MAX_LEVELS:
-#                                 game_state = "win"
-#                             else:
-#                                 game_state = "level_complete"
-#                         else:
-#                             start_new_round()
-#                     else:
-#                         current_level.lose_life()
-#                         if not current_level.has_lives():
-#                             game_state = "game_over"
-#                         else:
-#                             start_new_round()
-                
-#                 # elif game_state == "level_complete":
-#                 #     mouse_pos = event.pos
-#                 #     if continue_button.collidepoint(mouse_pos):
-#                 #         next_level_num = current_level.n_level + 1
-#                 #         current_level = Level(n_level=next_level_num, starting_lives=STARTING_LIVES)
-#                 #         setup_level(current_level)
-#                 #         start_new_round()
-#                 #         game_state = "playing"
-#                 #     elif quit_button.collidepoint(mouse_pos):
-#                 #         game_state = "home"
-#                 # ===
-#                 elif game_state == "level_complete":
-#                     mouse_pos = event.pos
-#                     if continue_button.collidepoint(mouse_pos):
-#                         next_level_num = current_level.n_level + 1
-                        
-#                         # Update the last_level_played for the current session
-#                         player.last_level_played = next_level_num
-
-#                         current_level = Level(n_level=next_level_num, starting_lives=STARTING_LIVES)
-#                         setup_level(current_level)
-#                         start_new_round()
-#                         game_state = "playing"
-#                     elif quit_button.collidepoint(mouse_pos):
-#                         game_state = "home"
-#                 # ===
-#                 elif game_state in ["game_over", "win"]:
-#                     game_state = "home"
-
-#         if game_state == "playing":
-#             if pygame.time.get_ticks() - round_start_time > round_time_limit:
-#                 start_new_round()
-#             screens.draw_game_screen(display, settings, moles, player, current_level)
-        
-#         elif game_state == "home":
-#             screens.draw_home_screen(display, settings)
-        
-#         elif game_state == "level_complete":
-#             screens.draw_level_complete_screen(display, settings, player, continue_button, quit_button)
-
-#         elif game_state == "game_over":
-#             screens.draw_game_over_screen(display, settings, player)
-            
-#         elif game_state == "win":
-#             screens.draw_win_screen(display, settings, player)
-
-#         pygame.display.flip()
-#         settings.clock.tick(60)
-
-# if __name__ == "__main__":
-#     main()
-
 # app.py
 import pygame
 import sys
@@ -140,8 +9,8 @@ from game.player import Player
 from game.level import Level
 from game.mole import Mole
 import game.screens as screens
-# Import TARGETS and CIVILIAN_MOLES for a potential quick reference or more robust error handling
-from game.missions import TARGETS, CIVILIAN_MOLES
+# Import LEVEL_THEMES for the new theme-based system
+from game.missions import LEVEL_THEMES
 
 def main():
     pygame.init()
@@ -151,8 +20,8 @@ def main():
     pygame.display.set_caption(settings.title)
 
     STARTING_LIVES = 3
-    # MAX_LEVELS should match the number of entries in TARGETS
-    MAX_LEVELS = len(TARGETS) 
+    # MAX_LEVELS should match the number of entries in LEVEL_THEMES
+    MAX_LEVELS = len(LEVEL_THEMES) 
     
     # --- State variables ---
     current_level, moles, active_mole = None, [], None
@@ -169,9 +38,16 @@ def main():
     
     # Button for Mission Briefing screen
     start_mission_button = pygame.Rect(settings.width/2 - button_w/2, settings.height / 2 + button_y_offset, button_w, button_h)
+    
+    # Hint button for game screen (bottom right)
+    hint_button = pygame.Rect(settings.width - 120, settings.height - 50, 100, 40)
+    
+    # Hint dialog state
+    show_hint_dialog = False
 
-    # --- NEW: Image Loading Cache with Circular Masking ---
+    # --- Image Loading Cache with Circular Masking and Background Support ---
     loaded_images = {}
+    
     def get_circular_image(path):
         if path not in loaded_images:
             try:
@@ -189,26 +65,46 @@ def main():
                 scaled_image.blit(mask_surface, (0, 0), None, pygame.BLEND_RGBA_MULT)
 
                 loaded_images[path] = scaled_image
-            except pygame.error as e:
-                print(f"Error loading image {path}: {e}")
+            except (pygame.error, FileNotFoundError) as e:
+                print(f"WARNING: Missing mole image asset '{path}': {e}")
+                print(f"         Using red circle fallback. Please add the missing image file.")
                 # Provide a fallback (e.g., a red circle) if image fails to load
                 fallback_image = pygame.Surface((Mole(0,0,None).radius * 2, Mole(0,0,None).radius * 2), pygame.SRCALPHA)
                 pygame.draw.circle(fallback_image, settings.RED, (Mole(0,0,None).radius, Mole(0,0,None).radius), Mole(0,0,None).radius)
                 loaded_images[path] = fallback_image
 
         return loaded_images[path]
+    
+    def get_background_image(path):
+        if path not in loaded_images:
+            try:
+                # Load background and scale to screen size
+                background_original = pygame.image.load(path).convert()
+                background_scaled = pygame.transform.smoothscale(background_original, (settings.width, settings.height))
+                loaded_images[path] = background_scaled
+            except (pygame.error, FileNotFoundError) as e:
+                print(f"WARNING: Missing background image asset '{path}': {e}")
+                print(f"         Using blue background fallback. Please add the missing image file.")
+                # Fallback: solid color background
+                fallback_bg = pygame.Surface((settings.width, settings.height))
+                fallback_bg.fill(settings.BLUE)
+                loaded_images[path] = fallback_bg
+        return loaded_images[path]
 
-    # --- UPDATED: Level Setup ---
+    # --- UPDATED: Level Setup with Theme System ---
     def setup_level(level_obj):
         nonlocal moles
         moles.clear()
         
-        # Ensure target data exists for this level
-        if level_obj.target_data is None:
-            print(f"Error: No target data for level {level_obj.n_level}. Game cannot proceed.")
+        # Ensure theme data exists for this level
+        if level_obj.theme_data is None:
+            print(f"ERROR: No theme data for level {level_obj.n_level}. Game cannot proceed.")
             # Handle gracefully, e.g., transition to game_over or home screen
             pygame.quit(); sys.exit() 
             
+        # Load background image for this theme
+        level_obj.background_surface = get_background_image(level_obj.background_image)
+        
         # Get target image (now circular)
         target_img_surface = get_circular_image(level_obj.target_data["image_path"])
         # Get civilian images (now circular)
@@ -248,7 +144,7 @@ def main():
                 if civilian_img_surfaces:
                     mole.image = random.choice(civilian_img_surfaces)
                 else:
-                    print("Warning: No civilian images available. Using fallback red circle.")
+                    print("WARNING: No civilian images available for this theme. Using fallback red circle.")
                     fallback_image = pygame.Surface((Mole(0,0,None).radius * 2, Mole(0,0,None).radius * 2), pygame.SRCALPHA)
                     pygame.draw.circle(fallback_image, settings.RED, (Mole(0,0,None).radius, Mole(0,0,None).radius), Mole(0,0,None).radius)
                     mole.image = fallback_image
@@ -290,6 +186,7 @@ def main():
                 if game_state == "home":
                     player.reset()
                     current_level = Level(n_level=0, starting_lives=STARTING_LIVES)
+                    show_hint_dialog = False  # Reset hint dialog
                     round_time_limit = current_level.mole_duration
                     round_start_time = 0
                     game_state = "briefing" # Transition to briefing screen
@@ -299,12 +196,20 @@ def main():
                     if start_mission_button.collidepoint(event.pos):
                         setup_level(current_level) # Setup moles for the level after briefing
                         start_new_round(current_level)
+                        show_hint_dialog = False  # Ensure hint dialog is closed
                         game_state = "playing" # Start playing
 
                 elif game_state == "playing":
+                    # Check for hint dialog close
+                    if show_hint_dialog:
+                        show_hint_dialog = False  # Close dialog on any click
+                    # Check for hint button click
+                    elif hint_button.collidepoint(event.pos):
+                        if player.use_hint():  # Returns True if hint was successfully used
+                            show_hint_dialog = True
                     # --- UPDATED: Hitman Logic for clicks ---
                     # Check if the click was within the active mole's bounding box
-                    if active_mole and active_mole.rect.collidepoint(event.pos):
+                    elif active_mole and active_mole.rect.collidepoint(event.pos):
                         if active_mole.mole_type == 'target':
                             player.total_score += 1
                             current_level.increment_hits()
@@ -339,6 +244,7 @@ def main():
                         next_level_num = current_level.n_level + 1
                         player.last_level_played = next_level_num # Track level reached in this run
                         current_level = Level(n_level=next_level_num, starting_lives=STARTING_LIVES)
+                        player.reset_level_hint_status()  # Allow hint usage for new level
                         round_time_limit = current_level.mole_duration
                         round_start_time = 0
                         game_state = "briefing" # Go to briefing for next mission
