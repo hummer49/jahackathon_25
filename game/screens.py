@@ -1,58 +1,70 @@
+# game/screens.py
 import pygame
 
-# GLOBAL VARIABLES
+def draw_home_screen(display, settings):
+    display.fill(settings.BLACK)
+    title_text = settings.font_large.render("HIT-A-MOLE", True, settings.WHITE)
+    prompt_text = settings.font_small.render("Click anywhere to start", True, settings.WHITE)
+    title_rect = title_text.get_rect(center=(settings.width / 2, settings.height / 2 - 50))
+    prompt_rect = prompt_text.get_rect(center=(settings.width / 2, settings.height / 2 + 20))
+    display.blit(title_text, title_rect)
+    display.blit(prompt_text, prompt_rect)
 
-
-colors = {
-    "BLACK" : (0, 0, 0),
-    "GREY" : (125, 125, 125),
-    "RED" : (255, 0, 0),
-    "BLUE" : (30, 144, 255),
-    "WHITE" : (255, 255, 255),
-}
-
-settings = {
-    "screen_width": 800,
-    "screen_height": 600,
-}
-
-
-def draw_start_screen(screen):
-    """Draws the start screen with instructions."""
-    screen.fill(colors["BLUE"])
-    font = pygame.font.SysFont('Arial', 40)
-    title_text = font.render('My Circle Game', True, colors["WHITE"])
-    instr_text = font.render('Press SPACE to Start', True, colors["WHITE"])
+def draw_game_screen(display, settings, moles, player, level):
+    display.fill(settings.BLUE)
+    for mole in moles:
+        mole.draw(red=settings.BRIGHT_RED, black=settings.BLACK)
     
-    # Center the text
-    title_rect = title_text.get_rect(center=(settings["screen_width"] // 2, settings["screen_height"] // 2 - 50))
-    instr_rect = instr_text.get_rect(center=(settings["screen_width"] // 2, settings["screen_height"] // 2 + 50))
+    score_text = settings.font_small.render(f"Score: {player.total_score}", True, settings.WHITE)
+    lives_text = settings.font_small.render(f"Lives: {level.life_points}", True, settings.WHITE)
+    level_text = settings.font_small.render(f"Level: {level.n_level + 1}", True, settings.WHITE)
+    hits_text = settings.font_small.render(f"Hits: {level.player_hits} / {level.required_hits}", True, settings.WHITE)
+
+    display.blit(score_text, (10, 10))
+    display.blit(lives_text, (settings.width - 120, 10))
+    display.blit(level_text, (10, 50))
+    display.blit(hits_text, (settings.width - 170, 50))
+
+def draw_level_complete_screen(display, settings, player, continue_btn, quit_btn):
+    display.fill(settings.BLACK)
     
-    screen.blit(title_text, title_rect)
-    screen.blit(instr_text, instr_rect)
+    title_text = settings.font_large.render("Level Completed!", True, settings.WHITE)
+    score_text = settings.font_small.render(f"Current Score: {player.total_score}", True, settings.WHITE)
+    title_rect = title_text.get_rect(center=(settings.width / 2, settings.height / 2 - 80))
+    score_rect = score_text.get_rect(center=(settings.width / 2, settings.height / 2 - 20))
+    display.blit(title_text, title_rect)
+    display.blit(score_text, score_rect)
 
-def draw_game_screen_l1(screen):
-    """Draws the main game screen with the three circles."""
-    screen.fill(colors["BLACK"])
+    mouse_pos = pygame.mouse.get_pos()
     
-    # Circle properties (same as before)
-    circle_radius = 50
-    circle_y = settings["screen_height"] // 2
-    spacing = 100
-    circle_x1 = settings["screen_width"] // 2 - circle_radius - spacing
-    circle_x2 = settings["screen_width"] // 2
-    circle_x3 = settings["screen_width"] // 2 + circle_radius + spacing
+    continue_color = settings.BRIGHT_GREEN if continue_btn.collidepoint(mouse_pos) else settings.GREEN
+    pygame.draw.rect(display, continue_color, continue_btn)
+    continue_text = settings.font_medium.render("CONTINUE", True, settings.WHITE)
+    continue_text_rect = continue_text.get_rect(center=continue_btn.center)
+    display.blit(continue_text, continue_text_rect)
 
-    # Draw the three circles
-    pygame.draw.circle(screen, colors["RED"], (circle_x1, circle_y), circle_radius)
-    pygame.draw.circle(screen, colors["RED"], (circle_x2, circle_y), circle_radius)
-    pygame.draw.circle(screen, colors["RED"], (circle_x3, circle_y), circle_radius)
+    quit_color = settings.BRIGHT_RED if quit_btn.collidepoint(mouse_pos) else settings.RED
+    pygame.draw.rect(display, quit_color, quit_btn)
+    quit_text = settings.font_medium.render("QUIT", True, settings.WHITE)
+    quit_text_rect = quit_text.get_rect(center=quit_btn.center)
+    display.blit(quit_text, quit_text_rect)
 
+def draw_game_over_screen(display, settings, player):
+    display.fill(settings.BLACK)
+    title_text = settings.font_large.render("GAME OVER", True, settings.BRIGHT_RED)
+    score_text = settings.font_small.render(f"Final Score: {player.total_score}", True, settings.WHITE)
+    prompt_text = settings.font_small.render("Click to return to menu", True, settings.WHITE)
+    title_rect = title_text.get_rect(center=(settings.width / 2, settings.height / 2 - 50))
+    score_rect = score_text.get_rect(center=(settings.width / 2, settings.height / 2 + 20))
+    prompt_rect = prompt_text.get_rect(center=(settings.width / 2, settings.height / 2 + 60))
+    display.blit(title_text, title_rect); display.blit(score_text, score_rect); display.blit(prompt_text, prompt_rect)
 
-
-
-
-
-
-
-
+def draw_win_screen(display, settings, player):
+    display.fill(settings.BLACK)
+    title_text = settings.font_large.render("YOU WIN!", True, settings.BRIGHT_GREEN)
+    score_text = settings.font_small.render(f"Final Score: {player.total_score}", True, settings.WHITE)
+    prompt_text = settings.font_small.render("Click to return to menu", True, settings.WHITE)
+    title_rect = title_text.get_rect(center=(settings.width / 2, settings.height / 2 - 50))
+    score_rect = score_text.get_rect(center=(settings.width / 2, settings.height / 2 + 20))
+    prompt_rect = prompt_text.get_rect(center=(settings.width / 2, settings.height / 2 + 60))
+    display.blit(title_text, title_rect); display.blit(score_text, score_rect); display.blit(prompt_text, prompt_rect)
