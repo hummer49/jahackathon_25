@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 class Player:
     def __init__(self, name: str = "Agent 48"):
         self.name = name
@@ -23,7 +27,10 @@ class Player:
         if self.hints_remaining > 0 and not self.hint_used_this_level:
             self.hints_remaining -= 1
             self.hint_used_this_level = True
+            logger.debug(f"Player '{self.name}' used a hint. Hints remaining: {self.hints_remaining}")
             return True
+        else:
+            logger.debug(f"Player '{self.name}' attempted to use hint but none available (remaining: {self.hints_remaining}, used this level: {self.hint_used_this_level})")
         return False
     
     def reset_level_hint_status(self):

@@ -1,5 +1,8 @@
 # game/level.py
+import logging
 from game.missions import LEVEL_THEMES
+
+logger = logging.getLogger(__name__)
 
 class Level:
     def __init__(self, n_level: int, starting_lives: int):
@@ -35,12 +38,14 @@ class Level:
 
     def increment_hits(self):
         self.player_hits += 1
+        logger.debug(f"Level {self.n_level + 1}: Hit count increased to {self.player_hits}/{self.required_hits}")
 
     def is_complete(self) -> bool:
         return self.player_hits >= self.required_hits
 
     def lose_life(self):
         self.life_points -= 1
+        logger.debug(f"Level {self.n_level + 1}: Life lost. Lives remaining: {self.life_points}")
 
     def has_lives(self) -> bool:
         return self.life_points > 0

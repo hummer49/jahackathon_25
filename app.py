@@ -2,6 +2,7 @@
 import pygame
 import sys
 import random
+import logging
 
 # Import all the components from your game package
 from game.settings import Settings
@@ -11,6 +12,17 @@ from game.mole import Mole
 import game.screens as screens
 # Import LEVEL_THEMES for the new theme-based system
 from game.missions import LEVEL_THEMES
+
+# Configure logging for game events
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('game_events.log'),
+        logging.StreamHandler()  # Also log to console
+    ]
+)
+logger = logging.getLogger(__name__)
 
 def main():
     pygame.init()
@@ -187,6 +199,10 @@ def main():
                     player.reset()
                     current_level = Level(n_level=0, starting_lives=STARTING_LIVES)
                     show_hint_dialog = False  # Reset hint dialog
+                    
+                    # Log new game start
+                    logger.info(f"NEW GAME STARTED! Player '{player.name}' starting level 1 with {STARTING_LIVES} lives")
+                    
                     game_state = "briefing" # Transition to briefing screen
                 
                 # --- NEW: Briefing State Logic ---
@@ -195,6 +211,10 @@ def main():
                         setup_level(current_level) # Setup moles for the level after briefing
                         start_new_round(current_level)
                         show_hint_dialog = False  # Ensure hint dialog is closed
+                        
+                        # Log mission start
+                        logger.info(f"MISSION STARTED! Level {current_level.n_level + 1} ({current_level.theme_name}) - Target: '{current_level.target_data['name']}'")
+                        
                         game_state = "playing" # Start playing
 
                 elif game_state == "playing":
@@ -205,6 +225,9 @@ def main():
                     elif hint_button.collidepoint(event.pos):
                         if player.use_hint():  # Returns True if hint was successfully used
                             show_hint_dialog = True
+                            
+                            # Log hint usage
+                            logger.info(f"HINT USED! Player used hint in level {current_level.n_level + 1}. Hints remaining: {player.hints_remaining}")
                     # --- UPDATED: Hitman Logic for clicks ---
                     # Check if the click was within the active mole's bounding box
                     elif active_mole and active_mole.rect.collidepoint(event.pos):
@@ -212,13 +235,21 @@ def main():
                             player.total_score += 1
                             current_level.increment_hits()
                             
+                            # Log target hit and score earned
+                            logger.info(f"TARGET HIT! Player hit target mole '{current_level.target_data['name']}' in level {current_level.n_level + 1}")
+                            logger.info(f"SCORE EARNED! Player scored 1 point. Total score: {player.total_score}")
+                            
                             if current_level.is_complete():
                                 # Update player's highest completed level record
                                 if current_level.n_level > player.max_level_reached:
                                     player.max_level_reached = current_level.n_level
 
+                                # Log level completion
+                                logger.info(f"LEVEL PASSED! Player completed level {current_level.n_level + 1} ({current_level.theme_name}) with {current_level.player_hits}/{current_level.required_hits} hits")
+                                
                                 if current_level.n_level + 1 >= MAX_LEVELS:
                                     game_state = "win" # Game won!
+                                    logger.info(f"GAME WON! Player completed all {MAX_LEVELS} levels with final score: {player.total_score}")
                                 else:
                                     game_state = "level_complete" # Proceed to next level
                             else:
@@ -226,14 +257,24 @@ def main():
                         elif active_mole.mole_type == 'civilian':
                             # Penalty for hitting a civilian!
                             current_level.lose_life()
+                            
+                            # Log turn/life used
+                            logger.info(f"TURN USED! Player hit civilian mole in level {current_level.n_level + 1}. Lives remaining: {current_level.life_points}")
+                            
                             if not current_level.has_lives():
                                 game_state = "game_over" # No lives left
+                                logger.info(f"GAME OVER! Player ran out of lives in level {current_level.n_level + 1}. Final score: {player.total_score}")
                             else:
                                 start_new_round(current_level) # Continue current level with fewer lives
                     else: # Player missed the active mole (either hit empty space or wrong mole)
                         current_level.lose_life()
+                        
+                        # Log turn/life used
+                        logger.info(f"TURN USED! Player missed target in level {current_level.n_level + 1}. Lives remaining: {current_level.life_points}")
+                        
                         if not current_level.has_lives():
                             game_state = "game_over" # No lives left
+                            logger.info(f"GAME OVER! Player ran out of lives in level {current_level.n_level + 1}. Final score: {player.total_score}")
                         else:
                             start_new_round(current_level) # Continue current level with fewer lives
                 
@@ -243,6 +284,10 @@ def main():
                         player.last_level_played = next_level_num # Track level reached in this run
                         current_level = Level(n_level=next_level_num, starting_lives=STARTING_LIVES)
                         player.reset_level_hint_status()  # Allow hint usage for new level
+                        
+                        # Log progressing to next level
+                        logger.info(f"NEXT LEVEL! Player proceeding to level {next_level_num + 1} ({current_level.theme_name if current_level.theme_data else 'Unknown'})")
+                        
                         game_state = "briefing" # Go to briefing for next mission
                     elif quit_button.collidepoint(event.pos):
                         game_state = "home" # Go back to home screen
