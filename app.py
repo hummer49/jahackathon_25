@@ -38,6 +38,12 @@ def main():
     
     # Button for Mission Briefing screen
     start_mission_button = pygame.Rect(settings.width/2 - button_w/2, settings.height / 2 + button_y_offset, button_w, button_h)
+    
+    # Hint button for game screen (bottom right)
+    hint_button = pygame.Rect(settings.width - 120, settings.height - 50, 100, 40)
+    
+    # Hint dialog state
+    show_hint_dialog = False
 
     # --- Image Loading Cache with Circular Masking and Background Support ---
     loaded_images = {}
@@ -150,6 +156,7 @@ def main():
                 if game_state == "home":
                     player.reset()
                     current_level = Level(n_level=0, starting_lives=STARTING_LIVES)
+                    show_hint_dialog = False  # Reset hint dialog
                     game_state = "briefing" # Transition to briefing screen
                 
                 # --- NEW: Briefing State Logic ---
@@ -157,12 +164,20 @@ def main():
                     if start_mission_button.collidepoint(event.pos):
                         setup_level(current_level) # Setup moles for the level after briefing
                         start_new_round()
+                        show_hint_dialog = False  # Ensure hint dialog is closed
                         game_state = "playing" # Start playing
 
                 elif game_state == "playing":
+                    # Check for hint dialog close
+                    if show_hint_dialog:
+                        show_hint_dialog = False  # Close dialog on any click
+                    # Check for hint button click
+                    elif hint_button.collidepoint(event.pos):
+                        if player.use_hint():  # Returns True if hint was successfully used
+                            show_hint_dialog = True
                     # --- UPDATED: Hitman Logic for clicks ---
                     # Check if the click was within the active mole's bounding box
-                    if active_mole and active_mole.rect.collidepoint(event.pos):
+                    elif active_mole and active_mole.rect.collidepoint(event.pos):
                         if active_mole.mole_type == 'target':
                             player.total_score += 1
                             current_level.increment_hits()
@@ -197,6 +212,7 @@ def main():
                         next_level_num = current_level.n_level + 1
                         player.last_level_played = next_level_num # Track level reached in this run
                         current_level = Level(n_level=next_level_num, starting_lives=STARTING_LIVES)
+                        player.reset_level_hint_status()  # Allow hint usage for new level
                         game_state = "briefing" # Go to briefing for next mission
                     elif quit_button.collidepoint(event.pos):
                         game_state = "home" # Go back to home screen
@@ -209,7 +225,7 @@ def main():
             # Check for round time limit
             if pygame.time.get_ticks() - round_start_time > round_time_limit:
                 start_new_round() # Mole disappears if not hit in time
-            screens.draw_game_screen(display, settings, moles, player, current_level)
+            screens.draw_game_screen(display, settings, moles, player, current_level, hint_button, show_hint_dialog)
         
         elif game_state == "home":
             screens.draw_home_screen(display, settings, player) # Pass player for highest level
