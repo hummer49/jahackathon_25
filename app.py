@@ -1,171 +1,125 @@
-# import sys
+# # V1
 # import pygame
 # import random
 # import sys
 
-
-
 # class Settings:
-#     def __init__(
-#         self, 
-#         height:int=800, 
-#         width:int=600
-#     ):
-#         self.height = height
+#     def __init__(self, width: int = 800, height: int = 600):
 #         self.width = width
+#         self.height = height
 #         self.title = "HIT-a-MOLE"
 #         self.WHITE = (255, 255, 255)
 #         self.BLACK = (0, 0, 0)
 #         self.RED = (255, 0, 0)
 #         self.BLUE = (0, 0, 255)
+#         self.num_holes = 5 # Number of holes for moles to appear in
+#         pygame.font.init() # Initialize font module
 #         self.font_0 = pygame.font.Font(None, 36)
 #         self.clock = pygame.time.Clock()
 
-
 # class Player:
-#     def __init__(
-#         self,
-#         name:str = "Agente 48"
-#     ):
+#     def __init__(self, name: str = "Agent 48"):
 #         self.name = name
-#         self.__score = 0
-#         self.__max_level = 0
-#     def set_score(self, n:int):
-#         self.__score = n
-#     def get_score(self):
-#         return self.__score
-#     def set_max_level(self, n:int):
-#         self.__max_level = n
-#     def get_max_level(self):
-#         return self.__max_level
-    
-# class Circle:
-#     def __init__(
-#         self,
-#         filled,
-#         x,
-#         y,
-#         display
-#     ):
+#         self.score = 0 # Direct access is fine for a simple game
+
+# class Mole:
+#     def __init__(self, x, y, display):
 #         self.radius = 50
 #         self.x = x
 #         self.y = y
-#         self.filled = filled
+#         self.is_active = False # Is the mole "up"?
 #         self.display = display
+
 #     def draw(self, red, black):
-#         color = red if self.filled else black
-#         pygame.draw.circle(
-#             self.display,
-#             color,
-#             (self.x, self.y),
-#             self.radius,
-#             3 if not self.filled else 0
-#         )
+#         # Draw red if active, otherwise black
+#         color = red if self.is_active else black
+#         width = 0 if self.is_active else 3 # 0 for filled, 3 for outline
+#         pygame.draw.circle(self.display, color, (self.x, self.y), self.radius, width)
 
 # def main():
-#     #initialize game
+#     # Initialize game
 #     pygame.init()
 
-#     #initialize the player
-#     player = Player()
-
-#     #setup the display
+#     # Setup the display and player
 #     settings = Settings()
-#     display = pygame.display.set_mode(
-#         size=(settings.width, settings.height)
-#     )
+#     player = Player()
+#     display = pygame.display.set_mode(size=(settings.width, settings.height))
 #     pygame.display.set_caption(settings.title)
 
-    
-#     round_time = 1000
-#     start_time = None
-#     # ===
-#     #create the circles
-#     circles = []
-#     for i in range(4):
-#         circles.append(
-#             Circle(
-#                 filled=False,
-#                 x=(i+1)*(settings.width//6),
-#                 y=settings.height//2,
-#                 display=display
-#             )
-#         )
-#     for i in range(5):
-#         circles.append(
-#             Circle(
-#                 filled=True,
-#                 # x=random.choice((i+1)*(settings.width//6)),
-#                 x=random.choice([(i + 1) * (settings.width // 6) for i in range(5)]),
-#                 y=settings.height//2,
-#                 display=display
-#             )
-#         )
-#     # ===
+#     # --- Create the mole holes ONCE ---
+#     moles = []
+#     for i in range(settings.num_holes):
+#         x_pos = (i + 1) * (settings.width // (settings.num_holes + 1))
+#         y_pos = settings.height // 2
+#         moles.append(Mole(x_pos, y_pos, display))
 
-#     # main game loop
+#     # --- Game state variables ---
+#     active_mole = None
+#     round_time_limit = 1000  # 1 second
+#     round_start_time = 0
+
+#     def start_new_round():
+#         """Resets the previous mole and activates a new random one."""
+#         nonlocal active_mole, round_start_time
+        
+#         # Deactivate the previous mole if one exists
+#         if active_mole:
+#             active_mole.is_active = False
+        
+#         # Activate a new random mole
+#         active_mole = random.choice(moles)
+#         active_mole.is_active = True
+        
+#         # Start the timer for the new round
+#         round_start_time = pygame.time.get_ticks()
+
+#     # Start the first round
+#     start_new_round()
+
+#     # Main game loop
 #     while True:
+#         # --- Event Handling ---
 #         for event in pygame.event.get():
 #             if event.type == pygame.QUIT:
 #                 pygame.quit()
 #                 sys.exit()
-#                 break
-#             elif event.type == pygame.MOUSEBUTTONDOWN:
-#                 if start_time is not None:
-#                     elapsed_time = pygame.time.get_ticks() - start_time
-#                     mouse_x, mouse_y = pygame.mouse.get_pos()
-#                     clicked_circle = None
-#                     for circle in circles:
-#                         distance = ((mouse_x - circle.x) ** 2 + (mouse_y - circle.y) ** 2) ** 0.5
-#                         if distance <= circle.radius and circle.filled:
-#                             clicked_circle = circle
-#                             break
-#                     if clicked_circle is not None and elapsed_time <= round_time:
-#                         player.set_score(player.get_score()+1)
-#                     else:
-#                         player.set_score(player.get_score()-1)
-#                 start_time = None
-#                 # ===
-#                 #create the circles
-#                 circles = []
-#                 for i in range(4):
-#                     circles.append(
-#                         Circle(
-#                             filled=False,
-#                             x=(i+1)*(settings.width//6),
-#                             y=settings.height//2,
-#                             display=display
-#                         )
-#                     )
-#                 for i in range(5):
-#                     circles.append(
-#                         Circle(
-#                             filled=True,
-#                             # x=random.choice((i+1)*(settings.width//6)),
-#                             x=random.choice([(i + 1) * (settings.width // 6) for i in range(5)]),
-#                             y=settings.height//2,
-#                             display=display
-#                         )
-#                     )
+
+#             if event.type == pygame.MOUSEBUTTONDOWN:
+#                 mouse_x, mouse_y = pygame.mouse.get_pos()
+#                 distance = ((mouse_x - active_mole.x) ** 2 + (mouse_y - active_mole.y) ** 2) ** 0.5
+
+#                 # Check if the click was on the active mole
+#                 if distance <= active_mole.radius:
+#                     player.score += 1
+#                 else: # Player missed
+#                     player.score -= 1
+                
+#                 # Regardless of hit or miss, start the next round
+#                 start_new_round()
+
+#         # --- Game Logic ---
+#         # Check if the time for the current round has expired
+#         elapsed_time = pygame.time.get_ticks() - round_start_time
+#         if elapsed_time > round_time_limit:
+#             player.score -= 1 # Penalize for being too slow
+#             start_new_round()
+
+#         # --- Drawing ---
 #         display.fill(settings.BLUE)
-#         for circle in circles:
-#             circle.draw(red=settings.RED, black=settings.BLACK)
-#         score_text = settings.font_0.render(f"Score: {player.get_score()}", True, settings.WHITE)
-#         display.blit(score_text, (10,10))
+
+#         for mole in moles:
+#             mole.draw(red=settings.RED, black=settings.BLACK)
+        
+#         score_text = settings.font_0.render(f"Score: {player.score}", True, settings.WHITE)
+#         display.blit(score_text, (10, 10))
 
 #         pygame.display.flip()
 #         settings.clock.tick(60)
-#         if start_time is None and circles[-1].filled:
-#             start_time = pygame.time.get_ticks()
 
-
-# # END main
-
-# if __name__=="__main__":
+# if __name__ == "__main__":
 #     main()
 
-
-# V1
+#V2
 import pygame
 import random
 import sys
@@ -179,106 +133,146 @@ class Settings:
         self.BLACK = (0, 0, 0)
         self.RED = (255, 0, 0)
         self.BLUE = (0, 0, 255)
-        self.num_holes = 5 # Number of holes for moles to appear in
-        pygame.font.init() # Initialize font module
-        self.font_0 = pygame.font.Font(None, 36)
+        self.num_holes = 5
+        pygame.font.init()
+        self.font_large = pygame.font.Font(None, 74)
+        self.font_medium = pygame.font.Font(None, 36)
         self.clock = pygame.time.Clock()
 
 class Player:
-    def __init__(self, name: str = "Agent 48"):
+    def __init__(self, name: str = "Agent 48", lives: int = 3):
         self.name = name
-        self.score = 0 # Direct access is fine for a simple game
+        self.start_lives = lives
+        self.score = 0
+        self.lives = self.start_lives
+    
+    def reset(self):
+        """Resets score and lives for a new game."""
+        self.score = 0
+        self.lives = self.start_lives
 
 class Mole:
     def __init__(self, x, y, display):
         self.radius = 50
         self.x = x
         self.y = y
-        self.is_active = False # Is the mole "up"?
+        self.is_active = False
         self.display = display
 
     def draw(self, red, black):
-        # Draw red if active, otherwise black
         color = red if self.is_active else black
-        width = 0 if self.is_active else 3 # 0 for filled, 3 for outline
+        width = 0 if self.is_active else 3
         pygame.draw.circle(self.display, color, (self.x, self.y), self.radius, width)
 
-def main():
-    # Initialize game
-    pygame.init()
+def draw_home_screen(display, settings):
+    display.fill(settings.BLACK)
+    title_text = settings.font_large.render(settings.title, True, settings.WHITE)
+    prompt_text = settings.font_medium.render("Click anywhere to start", True, settings.WHITE)
+    
+    title_rect = title_text.get_rect(center=(settings.width / 2, settings.height / 2 - 50))
+    prompt_rect = prompt_text.get_rect(center=(settings.width / 2, settings.height / 2 + 20))
+    
+    display.blit(title_text, title_rect)
+    display.blit(prompt_text, prompt_rect)
 
-    # Setup the display and player
+def draw_game_screen(display, settings, moles, player):
+    display.fill(settings.BLUE)
+    for mole in moles:
+        mole.draw(red=settings.RED, black=settings.BLACK)
+    
+    score_text = settings.font_medium.render(f"Score: {player.score}", True, settings.WHITE)
+    lives_text = settings.font_medium.render(f"Lives: {player.lives}", True, settings.WHITE)
+    
+    display.blit(score_text, (10, 10))
+    display.blit(lives_text, (settings.width - 120, 10))
+
+def draw_game_over_screen(display, settings, player):
+    display.fill(settings.BLACK)
+    title_text = settings.font_large.render("GAME OVER", True, settings.RED)
+    score_text = settings.font_medium.render(f"Final Score: {player.score}", True, settings.WHITE)
+    prompt_text = settings.font_medium.render("Click to return to menu", True, settings.WHITE)
+    
+    title_rect = title_text.get_rect(center=(settings.width / 2, settings.height / 2 - 50))
+    score_rect = score_text.get_rect(center=(settings.width / 2, settings.height / 2 + 20))
+    prompt_rect = prompt_text.get_rect(center=(settings.width / 2, settings.height / 2 + 60))
+    
+    display.blit(title_text, title_rect)
+    display.blit(score_text, score_rect)
+    display.blit(prompt_text, prompt_rect)
+
+def main():
+    pygame.init()
     settings = Settings()
-    player = Player()
+    player = Player(lives=3)
     display = pygame.display.set_mode(size=(settings.width, settings.height))
     pygame.display.set_caption(settings.title)
 
-    # --- Create the mole holes ONCE ---
     moles = []
     for i in range(settings.num_holes):
         x_pos = (i + 1) * (settings.width // (settings.num_holes + 1))
         y_pos = settings.height // 2
         moles.append(Mole(x_pos, y_pos, display))
 
-    # --- Game state variables ---
     active_mole = None
-    round_time_limit = 1000  # 1 second
+    round_time_limit = 1000
     round_start_time = 0
+    game_state = "home"
 
     def start_new_round():
-        """Resets the previous mole and activates a new random one."""
         nonlocal active_mole, round_start_time
-        
-        # Deactivate the previous mole if one exists
         if active_mole:
             active_mole.is_active = False
         
-        # Activate a new random mole
         active_mole = random.choice(moles)
         active_mole.is_active = True
-        
-        # Start the timer for the new round
         round_start_time = pygame.time.get_ticks()
-
-    # Start the first round
-    start_new_round()
 
     # Main game loop
     while True:
-        # --- Event Handling ---
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                distance = ((mouse_x - active_mole.x) ** 2 + (mouse_y - active_mole.y) ** 2) ** 0.5
+                if game_state == "home":
+                    player.reset()
+                    start_new_round()
+                    game_state = "playing"
 
-                # Check if the click was on the active mole
-                if distance <= active_mole.radius:
-                    player.score += 1
-                else: # Player missed
-                    player.score -= 1
+                elif game_state == "playing":
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
+                    distance = ((mouse_x - active_mole.x) ** 2 + (mouse_y - active_mole.y) ** 2) ** 0.5
+
+                    if distance <= active_mole.radius:
+                        player.score += 1
+                    else:
+                        # This is now the ONLY way to lose a life
+                        player.lives -= 1
+                    
+                    if player.lives > 0:
+                        start_new_round()
+                    else:
+                        game_state = "game_over"
                 
-                # Regardless of hit or miss, start the next round
+                elif game_state == "game_over":
+                    game_state = "home"
+
+        if game_state == "playing":
+            # Check if time expired
+            elapsed_time = pygame.time.get_ticks() - round_start_time
+            if elapsed_time > round_time_limit:
+                # --- CHANGE HERE ---
+                # No more penalty! Just start a new round.
                 start_new_round()
-
-        # --- Game Logic ---
-        # Check if the time for the current round has expired
-        elapsed_time = pygame.time.get_ticks() - round_start_time
-        if elapsed_time > round_time_limit:
-            player.score -= 1 # Penalize for being too slow
-            start_new_round()
-
-        # --- Drawing ---
-        display.fill(settings.BLUE)
-
-        for mole in moles:
-            mole.draw(red=settings.RED, black=settings.BLACK)
+            
+            draw_game_screen(display, settings, moles, player)
         
-        score_text = settings.font_0.render(f"Score: {player.score}", True, settings.WHITE)
-        display.blit(score_text, (10, 10))
+        elif game_state == "home":
+            draw_home_screen(display, settings)
+        
+        elif game_state == "game_over":
+            draw_game_over_screen(display, settings, player)
 
         pygame.display.flip()
         settings.clock.tick(60)
