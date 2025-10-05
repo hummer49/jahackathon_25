@@ -199,6 +199,8 @@ def main():
                     player.reset()
                     current_level = Level(n_level=0, starting_lives=STARTING_LIVES)
                     show_hint_dialog = False  # Reset hint dialog
+                    round_time_limit = current_level.mole_duration
+                    round_start_time = 0
                     
                     # Log new game start
                     logger.info(f"NEW GAME STARTED! Player '{player.name}' starting level 1 with {STARTING_LIVES} lives")
@@ -284,6 +286,8 @@ def main():
                         player.last_level_played = next_level_num # Track level reached in this run
                         current_level = Level(n_level=next_level_num, starting_lives=STARTING_LIVES)
                         player.reset_level_hint_status()  # Allow hint usage for new level
+                        round_time_limit = current_level.mole_duration
+                        round_start_time = 0
                         
                         # Log progressing to next level
                         logger.info(f"NEXT LEVEL! Player proceeding to level {next_level_num + 1} ({current_level.theme_name if current_level.theme_data else 'Unknown'})")
