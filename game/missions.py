@@ -27,9 +27,18 @@ TARGETS = {
     },
     # Add more targets for levels 2, 3, etc.
     2: {
-        "name": "The Veteran",
-        "image_path": "assets/target_veteran.png",
-        "hint": "He is never seen without his military-grade helmet."
+        "name": "The Tycoon",
+        "image_path": "assets/target_level_1.png",
+        "hint": "Your target is known for his flashy top hat."
     },
-    # ...and so on
+    3: {
+        "name": "The Tycoon",
+        "image_path": "assets/target_level_1.png",
+        "hint": "Your target is known for his flashy top hat."
+    },
+    4: {
+        "name": "The Tycoon",
+        "image_path": "assets/target_level_1.png",
+        "hint": "Your target is known for his flashy top hat."
+    },
 }

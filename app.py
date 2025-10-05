@@ -213,11 +213,27 @@ def main():
         target_img_surface = get_circular_image(level_obj.target_data["image_path"])
         # Get civilian images (now circular)
         civilian_img_surfaces = [get_circular_image(p) for p in level_obj.civilian_images]
+
+        # guardar:
+        level_obj._target_img_surface = target_img_surface
+        level_obj._civilian_img_surfaces = civilian_img_surfaces
         
         # Create the moles (holes/positions)
-        for i in range(level_obj.holes):
-            x = (i + 1) * (settings.width // (level_obj.holes + 1))
-            moles.append(Mole(x, settings.height / 2, display))
+        if 0 <= level_obj.n_level < 2:
+            cols, rows = 2, 2
+        elif level_obj.n_level < 4:
+            cols, rows = 3, 2
+        else:
+            cols, rows = 3, 3
+
+        level_obj.holes = cols * rows
+
+        moles.clear()
+        for r in range(rows):
+            y = (r + 1) * (settings.height // (rows + 1))
+            for c in range(cols):
+                x = (c + 1) * (settings.width // (cols + 1))
+                moles.append(Mole(x, y, display))
             
         # Assign one mole to be the target
         target_mole = random.choice(moles)
@@ -238,17 +254,31 @@ def main():
                     mole.image = fallback_image
 
 
-    def start_new_round():
+    def start_new_round(level_obj):
         nonlocal active_mole, round_start_time
-        # Deactivate previous active mole if any
-        if active_mole: active_mole.is_active = False
-        
-        # Choose a new random mole to activate
-        if moles: 
-            active_mole = random.choice(moles)
-            active_mole.is_active = True
+        if active_mole:
+            active_mole.is_active = False
+
+        import random
+
+        # --- Evitar repetir el mismo topo ---
+        if active_mole:
+            choices = [m for m in moles if m != active_mole]
         else:
-            print("Warning: No moles to activate for the round!")
+            choices = moles
+        active_mole = random.choice(choices)
+        # ------------------------------------
+
+        # 1/N de probabilidad de que sea target (o ajustá la probabilidad)
+        if random.random() < (1 / len(moles)):
+            active_mole.mole_type = "target"
+            active_mole.image = level_obj._target_img_surface
+        else:
+            active_mole.mole_type = "civilian"
+            if level_obj._civilian_img_surfaces:
+                active_mole.image = random.choice(level_obj._civilian_img_surfaces)
+
+        active_mole.is_active = True
         round_start_time = pygame.time.get_ticks()
 
     while True:
@@ -266,7 +296,7 @@ def main():
                 elif game_state == "briefing":
                     if start_mission_button.collidepoint(event.pos):
                         setup_level(current_level) # Setup moles for the level after briefing
-                        start_new_round()
+                        start_new_round(current_level)
                         game_state = "playing" # Start playing
 
                 elif game_state == "playing":
@@ -287,20 +317,20 @@ def main():
                                 else:
                                     game_state = "level_complete" # Proceed to next level
                             else:
-                                start_new_round() # Continue current level
+                                start_new_round(current_level) # Continue current level
                         elif active_mole.mole_type == 'civilian':
                             # Penalty for hitting a civilian!
                             current_level.lose_life()
                             if not current_level.has_lives():
                                 game_state = "game_over" # No lives left
                             else:
-                                start_new_round() # Continue current level with fewer lives
+                                start_new_round(current_level) # Continue current level with fewer lives
                     else: # Player missed the active mole (either hit empty space or wrong mole)
                         current_level.lose_life()
                         if not current_level.has_lives():
                             game_state = "game_over" # No lives left
                         else:
-                            start_new_round() # Continue current level with fewer lives
+                            start_new_round(current_level) # Continue current level with fewer lives
                 
                 elif game_state == "level_complete":
                     if continue_button.collidepoint(event.pos):
@@ -318,7 +348,7 @@ def main():
         if game_state == "playing":
             # Check for round time limit
             if pygame.time.get_ticks() - round_start_time > round_time_limit:
-                start_new_round() # Mole disappears if not hit in time
+                start_new_round(current_level) # Mole disappears if not hit in time
             screens.draw_game_screen(display, settings, moles, player, current_level)
         
         elif game_state == "home":
