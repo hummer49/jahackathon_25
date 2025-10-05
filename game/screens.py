@@ -137,9 +137,9 @@ def draw_game_screen(display, settings, moles, player, level, hint_button=None, 
     else:
         display.fill(settings.BLUE)  # Fallback
     
-    # Draw the black "holes" as a background
-    for mole in moles:
-        pygame.draw.circle(display, settings.BLACK, (mole.x, mole.y), mole.radius)
+    # # Draw the black "holes" as a background
+    # for mole in moles:
+    #     pygame.draw.circle(display, settings.BLACK, (mole.x, mole.y), mole.radius)
     
     # Call each mole's own draw method to blit its image
     for mole in moles:

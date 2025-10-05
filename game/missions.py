@@ -4,31 +4,31 @@
 LEVEL_THEMES = {
     0: {
         "name": "School Infiltration",
-        "background_image": "assets/backgrounds/school_classroom.png",
+        "background_image": "assets/backgrounds/school_classroom.png", # OK
         "civilian_images": [
             "assets/moles/school/student_1.png",
             "assets/moles/school/student_2.png", 
             "assets/moles/school/teacher_1.png",
-            "assets/moles/school/student_3.png",
+            "assets/moles/school/student_3.png", # OK
         ],
         "target": {
             "name": "The Corporate Spy",
             "image_path": "assets/moles/targets/businessman_suit.png",  # Doesn't fit school
-            "hint": "He's overdressed for a classroom environment."
+            "hint": "He's overdressed for a classroom environment." #OK
         }
     },
     1: {
         "name": "Hospital Operation", 
-        "background_image": "assets/backgrounds/hospital_ward.png",
+        "background_image": "assets/backgrounds/hospital_ward.png", # OK
         "civilian_images": [
             "assets/moles/hospital/doctor_1.png",
             "assets/moles/hospital/nurse_1.png",
             "assets/moles/hospital/patient_1.png",
-            "assets/moles/hospital/doctor_2.png",
+            "assets/moles/hospital/doctor_2.png", # OK
         ],
         "target": {
             "name": "The Street Thug",
-            "image_path": "assets/moles/targets/gang_member.png",  # Doesn't fit hospital
+            "image_path": "assets/moles/targets/gang_member.png",  # Doesn't fit hospital # OK
             "hint": "His tattoos and leather jacket seem out of place here."
         }
     },
