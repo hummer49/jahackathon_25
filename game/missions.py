@@ -58,7 +58,7 @@ LEVEL_THEMES = {
         ],
         "target": {
             "name": "The Construction Worker",
-            "image_path": "assets/moles/targets/construction_worker.png",  # Doesn't fit restaurant
+            "image_path": "assets/moles/targets/samurai.png",  # Doesn't fit restaurant
             "hint": "His hard hat and work boots are very out of place here."
         }
     }
