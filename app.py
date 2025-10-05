@@ -212,9 +212,15 @@ def main():
                 if game_state == "home":
                     player.reset()
                     current_level = Level(n_level=0, starting_lives=STARTING_LIVES)
-                    show_hint_dialog = False  # Reset hint dialog
+                    show_hint_dialog = False
                     round_time_limit = current_level.mole_duration
                     round_start_time = 0
+
+                    # Reiniciar variables de la intro tambien xdddddddddddddddddddddddd
+                    intro_index = 0
+                    intro_current_text = ""
+                    intro_last_update = pygame.time.get_ticks()
+
                     
                     # Play button click sound
                     sound_manager.play_sound('button_click')
@@ -222,7 +228,7 @@ def main():
                     # Log new game start
                     logger.info(f"NEW GAME STARTED! Player '{player.name}' starting level 1 with {STARTING_LIVES} lives")
                     
-                    game_state = "intro" # Transition to briefing screen
+                    game_state = "intro"
 
                 elif game_state == "intro":
                     # al hacer clic, pasa al siguiente texto o continúa
