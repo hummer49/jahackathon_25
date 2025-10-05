@@ -114,14 +114,17 @@ def draw_briefing_screen(display, settings, level, start_button):
     display.fill(settings.BLACK)
     
     title_text = settings.font_large.render(f"Mission {level.n_level + 1}", True, settings.WHITE)
+    theme_text = settings.font_medium.render(f"Location: {level.theme_name}", True, settings.WHITE)
     target_text = settings.font_medium.render(f"Target: {level.target_data['name']}", True, settings.WHITE)
     hint_text = settings.font_small.render(f"Hint: {level.target_data['hint']}", True, settings.WHITE)
     
-    title_rect = title_text.get_rect(center=(settings.width / 2, settings.height / 2 - 120))
+    title_rect = title_text.get_rect(center=(settings.width / 2, settings.height / 2 - 140))
+    theme_rect = theme_text.get_rect(center=(settings.width / 2, settings.height / 2 - 90))
     target_rect = target_text.get_rect(center=(settings.width / 2, settings.height / 2 - 50))
     hint_rect = hint_text.get_rect(center=(settings.width / 2, settings.height / 2))
     
     display.blit(title_text, title_rect)
+    display.blit(theme_text, theme_rect)
     display.blit(target_text, target_rect)
     display.blit(hint_text, hint_rect)
 
@@ -134,7 +137,11 @@ def draw_briefing_screen(display, settings, level, start_button):
     display.blit(start_text, start_text_rect)
 
 def draw_game_screen(display, settings, moles, player, level):
-    display.fill(settings.BLUE)
+    # Draw background instead of solid color
+    if hasattr(level, 'background_surface') and level.background_surface:
+        display.blit(level.background_surface, (0, 0))
+    else:
+        display.fill(settings.BLUE)  # Fallback
     
     # Draw the black "holes" as a background
     for mole in moles:

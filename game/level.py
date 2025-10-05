@@ -1,6 +1,6 @@
 # game/level.py
-from game.missions import TARGETS, CIVILIAN_MOLES
-import random
+from game.missions import LEVEL_THEMES
+
 class Level:
     def __init__(self, n_level: int, starting_lives: int):
         self.n_level = n_level
@@ -14,12 +14,21 @@ class Level:
             self.required_hits = 6
         
         self.player_hits = 0
-        # Load the target for this level
-        self.target_data = TARGETS.get(self.n_level)
-
-        # Get a list of civilian mole images for this level, excluding the target's image
-        self.civilian_images = [img for img in CIVILIAN_MOLES if img != self.target_data["image_path"]]
-
+        
+        # Load theme data for this level
+        self.theme_data = LEVEL_THEMES.get(self.n_level)
+        if self.theme_data:
+            self.target_data = self.theme_data["target"]
+            self.civilian_images = self.theme_data["civilian_images"]
+            self.background_image = self.theme_data["background_image"]
+            self.theme_name = self.theme_data["name"]
+        else:
+            # Fallback for missing levels
+            print(f"Warning: No theme data for level {self.n_level}")
+            self.target_data = None
+            self.civilian_images = []
+            self.background_image = None
+            self.theme_name = f"Level {self.n_level + 1}"
 
     def increment_hits(self):
         self.player_hits += 1
