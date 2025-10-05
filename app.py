@@ -290,6 +290,8 @@ def main():
                 if game_state == "home":
                     player.reset()
                     current_level = Level(n_level=0, starting_lives=STARTING_LIVES)
+                    round_time_limit = current_level.mole_duration
+                    round_start_time = 0
                     game_state = "briefing" # Transition to briefing screen
                 
                 # --- NEW: Briefing State Logic ---
@@ -337,6 +339,8 @@ def main():
                         next_level_num = current_level.n_level + 1
                         player.last_level_played = next_level_num # Track level reached in this run
                         current_level = Level(n_level=next_level_num, starting_lives=STARTING_LIVES)
+                        round_time_limit = current_level.mole_duration
+                        round_start_time = 0
                         game_state = "briefing" # Go to briefing for next mission
                     elif quit_button.collidepoint(event.pos):
                         game_state = "home" # Go back to home screen
