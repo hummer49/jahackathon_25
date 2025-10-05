@@ -261,3 +261,29 @@ def draw_win_screen(display, settings, player):
     display.blit(title_text, title_rect)
     display.blit(score_text, score_rect)
     display.blit(prompt_text, prompt_rect)
+
+# Create screens object to provide interface for app.py
+class Screens:
+    def __init__(self):
+        pass
+    
+    def draw_home_screen(self, display, settings, player):
+        return draw_home_screen(display, settings, player)
+    
+    def draw_game_screen(self, display, settings, moles, player, level, hint_button=None, show_hint_dialog=False):
+        return draw_game_screen(display, settings, moles, player, level, hint_button, show_hint_dialog)
+    
+    def draw_briefing_screen(self, display, settings, level, start_button):
+        return draw_briefing_screen(display, settings, level, start_button)
+    
+    def draw_level_complete_screen(self, display, settings, player, level, continue_btn, quit_btn):
+        return draw_level_complete_screen(display, settings, player, level, continue_btn, quit_btn)
+    
+    def draw_game_over_screen(self, display, settings, player):
+        return draw_game_over_screen(display, settings, player)
+    
+    def draw_win_screen(self, display, settings, player):
+        return draw_win_screen(display, settings, player)
+
+# Create instance for import
+screens = Screens()

@@ -9,7 +9,8 @@ from game.settings import Settings
 from game.player import Player
 from game.level import Level
 from game.mole import Mole
-import game.screens as screens
+from game.screens import screens
+from game.sound_manager import SoundManager
 # Import LEVEL_THEMES for the new theme-based system
 from game.missions import LEVEL_THEMES
 
@@ -28,6 +29,7 @@ def main():
     pygame.init()
     settings = Settings()
     player = Player()
+    sound_manager = SoundManager()
     display = pygame.display.set_mode(size=(settings.width, settings.height))
     pygame.display.set_caption(settings.title)
 
@@ -202,6 +204,9 @@ def main():
                     round_time_limit = current_level.mole_duration
                     round_start_time = 0
                     
+                    # Play button click sound
+                    sound_manager.play_sound('button_click')
+                    
                     # Log new game start
                     logger.info(f"NEW GAME STARTED! Player '{player.name}' starting level 1 with {STARTING_LIVES} lives")
                     
@@ -213,6 +218,10 @@ def main():
                         setup_level(current_level) # Setup moles for the level after briefing
                         start_new_round(current_level)
                         show_hint_dialog = False  # Ensure hint dialog is closed
+                        
+                        # Play level start and button click sounds
+                        sound_manager.play_sound('level_start')
+                        sound_manager.play_sound('button_click')
                         
                         # Log mission start
                         logger.info(f"MISSION STARTED! Level {current_level.n_level + 1} ({current_level.theme_name}) - Target: '{current_level.target_data['name']}'")
@@ -237,11 +246,17 @@ def main():
                             player.total_score += 1
                             current_level.increment_hits()
                             
+                            # Play target hit sound
+                            sound_manager.play_sound('target_hit')
+                            
                             # Log target hit and score earned
                             logger.info(f"TARGET HIT! Player hit target mole '{current_level.target_data['name']}' in level {current_level.n_level + 1}")
                             logger.info(f"SCORE EARNED! Player scored 1 point. Total score: {player.total_score}")
                             
                             if current_level.is_complete():
+                                # Play level complete sound
+                                sound_manager.play_sound('level_complete')
+                                
                                 # Update player's highest completed level record
                                 if current_level.n_level > player.max_level_reached:
                                     player.max_level_reached = current_level.n_level
@@ -260,10 +275,15 @@ def main():
                             # Penalty for hitting a civilian!
                             current_level.lose_life()
                             
+                            # Play civilian hit sound
+                            sound_manager.play_sound('civilian_hit')
+                            
                             # Log turn/life used
                             logger.info(f"TURN USED! Player hit civilian mole in level {current_level.n_level + 1}. Lives remaining: {current_level.life_points}")
                             
                             if not current_level.has_lives():
+                                # Play game over sound
+                                sound_manager.play_sound('game_over')
                                 game_state = "game_over" # No lives left
                                 logger.info(f"GAME OVER! Player ran out of lives in level {current_level.n_level + 1}. Final score: {player.total_score}")
                             else:
@@ -275,6 +295,9 @@ def main():
                         logger.info(f"TURN USED! Player missed target in level {current_level.n_level + 1}. Lives remaining: {current_level.life_points}")
                         
                         if not current_level.has_lives():
+                            # Play game over sound
+                            sound_manager.play_sound('game_over')
+                            
                             game_state = "game_over" # No lives left
                             logger.info(f"GAME OVER! Player ran out of lives in level {current_level.n_level + 1}. Final score: {player.total_score}")
                         else:
@@ -289,14 +312,23 @@ def main():
                         round_time_limit = current_level.mole_duration
                         round_start_time = 0
                         
+                        # Play button click sound
+                        sound_manager.play_sound('button_click')
+                        
                         # Log progressing to next level
                         logger.info(f"NEXT LEVEL! Player proceeding to level {next_level_num + 1} ({current_level.theme_name if current_level.theme_data else 'Unknown'})")
                         
                         game_state = "briefing" # Go to briefing for next mission
                     elif quit_button.collidepoint(event.pos):
+                        # Play button click sound
+                        sound_manager.play_sound('button_click')
+                        
                         game_state = "home" # Go back to home screen
                 
                 elif game_state in ["game_over", "win"]:
+                    # Play button click sound
+                    sound_manager.play_sound('button_click')
+                    
                     game_state = "home" # Return to home screen from game over/win
 
         # --- State-based Drawing ---
@@ -304,7 +336,7 @@ def main():
             # Check for round time limit
             if pygame.time.get_ticks() - round_start_time > round_time_limit:
                 start_new_round(current_level) # Mole disappears if not hit in time
-            screens.draw_game_screen(display, settings, moles, player, current_level)
+            screens.draw_game_screen(display, settings, moles, player, current_level, hint_button, show_hint_dialog)
         
         elif game_state == "home":
             screens.draw_home_screen(display, settings, player) # Pass player for highest level
