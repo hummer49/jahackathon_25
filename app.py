@@ -177,6 +177,17 @@ def main():
         active_mole.is_active = True
         round_start_time = pygame.time.get_ticks()
 
+
+    intro_texts = [
+        "Hola agente Penguin007",
+        "El gobierno te necesita...",
+        "Se han detectado espias infiltrados.",
+        "Tu mision es encontrarlos y eliminarlos."
+    ]
+    intro_index = 0
+    intro_current_text = ""
+    intro_last_update = pygame.time.get_ticks()
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -189,7 +200,17 @@ def main():
                     show_hint_dialog = False  # Reset hint dialog
                     round_time_limit = current_level.mole_duration
                     round_start_time = 0
-                    game_state = "briefing" # Transition to briefing screen
+                    game_state = "intro" # Transition to briefing screen
+
+                elif game_state == "intro":
+                    # al hacer clic, pasa al siguiente texto o continúa
+                    if len(intro_current_text) >= len(intro_texts[intro_index]):
+                        intro_index += 1
+                        if intro_index >= len(intro_texts):
+                            game_state = "briefing"
+                        else:
+                            intro_current_text = ""
+                            intro_last_update = pygame.time.get_ticks()
                 
                 # --- NEW: Briefing State Logic ---
                 elif game_state == "briefing":
@@ -263,6 +284,11 @@ def main():
         
         elif game_state == "home":
             screens.draw_home_screen(display, settings, player) # Pass player for highest level
+
+        elif game_state == "intro":
+            intro_current_text, intro_last_update = screens.draw_intro_screen(
+                display, settings, intro_texts, intro_index, intro_current_text, intro_last_update
+            )
         
         # --- NEW: Draw Briefing Screen ---
         elif game_state == "briefing":

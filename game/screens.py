@@ -110,6 +110,32 @@ def draw_home_screen(display, settings, player):
     display.blit(prompt_text, prompt_rect)
     display.blit(max_level_text, max_level_rect)
 
+def draw_intro_screen(display, settings, texts, current_index, current_text, last_update_time, char_delay=50):
+    """Dibuja texto centrado con animación tipo máquina de escribir."""
+    display.fill(settings.BLACK)
+
+    # Si ya completó esta frase, solo la muestra completa
+    full_text = texts[current_index]
+    now = pygame.time.get_ticks()
+
+    # Escribir letra a letra
+    if len(current_text) < len(full_text) and now - last_update_time > char_delay:
+        current_text += full_text[len(current_text)]
+        last_update_time = now
+
+    # Renderizar texto centrado
+    text_surface = settings.font_medium.render(current_text, True, settings.WHITE)
+    text_rect = text_surface.get_rect(center=(settings.width // 2, settings.height // 2))
+    display.blit(text_surface, text_rect)
+
+    # Mensaje de continuar (solo cuando termina el texto)
+    if len(current_text) == len(full_text):
+        hint_surface = settings.font_small.render("Haz clic para continuar...", True, settings.WHITE)
+        hint_rect = hint_surface.get_rect(center=(settings.width // 2, settings.height // 2 + 60))
+        display.blit(hint_surface, hint_rect)
+
+    return current_text, last_update_time
+
 def draw_briefing_screen(display, settings, level, start_button):
     display.fill(settings.BLACK)
     
