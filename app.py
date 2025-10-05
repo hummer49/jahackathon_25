@@ -193,12 +193,8 @@ def main():
                 elif game_state == "briefing":
                     if start_mission_button.collidepoint(event.pos):
                         setup_level(current_level) # Setup moles for the level after briefing
-<<<<<<< HEAD
-                        start_new_round()
-                        show_hint_dialog = False  # Ensure hint dialog is closed
-=======
                         start_new_round(current_level)
->>>>>>> origin/grid
+                        show_hint_dialog = False  # Ensure hint dialog is closed
                         game_state = "playing" # Start playing
 
                 elif game_state == "playing":
@@ -258,13 +254,8 @@ def main():
         if game_state == "playing":
             # Check for round time limit
             if pygame.time.get_ticks() - round_start_time > round_time_limit:
-<<<<<<< HEAD
-                start_new_round() # Mole disappears if not hit in time
-            screens.draw_game_screen(display, settings, moles, player, current_level, hint_button, show_hint_dialog)
-=======
                 start_new_round(current_level) # Mole disappears if not hit in time
             screens.draw_game_screen(display, settings, moles, player, current_level)
->>>>>>> origin/grid
         
         elif game_state == "home":
             screens.draw_home_screen(display, settings, player) # Pass player for highest level
