@@ -25,10 +25,15 @@
 # game/mole.py
 import pygame
 import os # Import os for path manipulation
+import random
+
+JITTER = 30
 
 class Mole:
+    radius = 50
+
     def __init__(self, x, y, display):
-        self.radius = 50 
+        self.base_x, self.base_y = x, y   # ← guardar la posición base
         self.x, self.y = x, y
         self.rect = pygame.Rect(x - self.radius, y - self.radius, self.radius * 2, self.radius * 2)
         
@@ -59,7 +64,27 @@ class Mole:
         
         self.image = original_image # Assign the now circular image
     
+#    def draw(self):
+#        if self.is_active and self.image:
+#            img_rect = self.image.get_rect(center=(self.x, self.y))
+#            self.display.blit(self.image, img_rect)
+
     def draw(self):
         if self.is_active and self.image:
+            import random
+
+            if not hasattr(self, "_offset"):  # genera jitter solo al aparecer
+                dx = random.randint(-JITTER, JITTER)
+                dy = random.randint(-JITTER, JITTER)
+
+                # calcular nueva posición DESDE la base
+                self.x = self.base_x + dx
+                self.y = self.base_y + dy
+                self.rect.center = (self.x, self.y)
+                self._offset = (dx, dy)
+
             img_rect = self.image.get_rect(center=(self.x, self.y))
             self.display.blit(self.image, img_rect)
+        else:
+            if hasattr(self, "_offset"):
+                del self._offset

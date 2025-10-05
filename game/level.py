@@ -6,12 +6,15 @@ class Level:
         self.n_level = n_level
         self.life_points = starting_lives
         
-        if 0 <= self.n_level <= 3:
-            self.holes = 3
+        if 0 <= self.n_level < 2:
+            self.holes = 4
             self.required_hits = 3
-        else:
-            self.holes = 5
+        elif self.n_level < 4:
+            self.holes = 6
             self.required_hits = 6
+        else:
+            self.holes = 9
+            self.required_hits = 8
         
         self.player_hits = 0
         
